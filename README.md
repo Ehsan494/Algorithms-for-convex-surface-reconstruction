@@ -2,6 +2,7 @@
 
 > **MIT Summer Geometry Initiative (SGI) 2025 – Weeks 5 & 6**
 > **Primary mentor:** Prof. Nestor Guillén (Texas State University, US)
+
 > **Volunteer assistant:** Ehsan Shams (Alexandria University,EG)
 
 Research Fellows: Matthew Hellinger (Texas State University, US); Marina Oliveira Levay Reis (Minerva University, US)
