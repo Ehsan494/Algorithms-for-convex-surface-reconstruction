@@ -15,5 +15,5 @@ This repository provides reproducible implementations, tests, and exploratory no
 
 ## License <a id="license"></a>
 
-MIT © 2025 *Nestor Guillén & contributors.
+MIT © 2025 **Nestor Guillén & contributors**.
 See [`LICENSE`](LICENSE) for full terms.
