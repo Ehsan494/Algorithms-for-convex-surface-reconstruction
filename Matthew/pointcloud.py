@@ -333,14 +333,14 @@ N = 500
 sphere_pts = generate_point_cloud('sphere', N, surface_only=True, radius=0.5).astype(np.float32)
 
 # Horizontal circle (XY plane): zero Z
-horizontal_circle_3d = flatten_cloud(sphere_pts, 'z')      # lies in XY
+vertical_circle_3d = flatten_cloud(sphere_pts, 'z')      # lies in XY
 
 # Vertical circle (XZ plane): zero Y  [or use 'x' for YZ]
-vertical_circle_xz_3d = flatten_cloud(sphere_pts, 'y')     # lies in XZ
+horizontal_circle_3d = flatten_cloud(sphere_pts, 'y')     # lies in XZ
 
 # Use the 3D arrays directly; do NOT call project_cloud here
 X = horizontal_circle_3d
-Y = vertical_circle_xz_3d
+Y = vertical_circle_3d
 
 # Solve OT problem
 P_opt, cost = solve_ot(X, Y)
