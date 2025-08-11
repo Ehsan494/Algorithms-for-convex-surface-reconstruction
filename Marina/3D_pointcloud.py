@@ -101,13 +101,12 @@ def ui_callback():
 
 s = 0.0     # interpolation parameter
 
-
 # [rendundant part, will simplify] get vertices and faces from the source mesh
 V, F = gpy.read_mesh('data/bunny.obj')
 N = len(V)
 
 X, source_vertices, source_faces = sample_cloud('data/bunny.obj', N) # source points
-Y, _, _ = sample_cloud('data/spot.obj', N) # target points
+Y, _, _ = sample_cloud('data/bunny.obj', N) # target points
 
 # Solve OT problem
 P_opt, cost = solve_ot(X, Y)
