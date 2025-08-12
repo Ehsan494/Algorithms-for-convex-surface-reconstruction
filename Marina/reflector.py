@@ -20,42 +20,45 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 # sample point clouds 
 def sample_cloud(mesh_file, view='front'):
     """
-    Load and project 3D mesh to 2D.
-    
+    Load a 3D mesh, normalize into [-1,1]^3, and project to a flattened 3D plane.
+
+    We keep 3 coordinates (Nx3) so downstream models operate in 3D, but the
+    geometry lies on a coordinate plane (z=0, y=0, or x=0 depending on view).
+
     Args:
-        mesh_file: Path to mesh file
-        N: Number of vertices (used for compatibility)
-        view: 'front' (xy), 'top' (xz), or 'side' (yz)
+        mesh_file: Path to mesh file (relative to this script or absolute)
+        view: 'front' (xy plane, z=0), 'top' (xz plane, y=0), or 'side' (yz plane, x=0)
+    Returns:
+        (points_3d_flat, faces)
     """
-    # Resolve mesh_file to an absolute path relative to this script
     mesh_path = Path(mesh_file)
     if not mesh_path.is_absolute():
         mesh_path = Path(__file__).parent / mesh_path
-        
+
     mesh = trimesh.load(str(mesh_path), process=False)
-    
-    # Rescale mesh vertices to fit in [-1, 1]^3 cube, centered at origin
+
     vertices = mesh.vertices.copy()
     faces = mesh.faces.copy()
-    
-    # Center at origin
+
+    # Normalize to centered unit cube
     vertices -= np.mean(vertices, axis=0)
-    # Scale to fit in [-1, 1]
-    vertices /= np.max(np.abs(vertices))
-    
-    # Project to 2D based on view
+    max_abs = np.max(np.abs(vertices))
+    if max_abs > 0:
+        vertices /= max_abs
+
     if view == 'front':
-        vertices_2d = vertices[:, :2]
+        # (x,y,0)
+        vertices_out = np.stack([vertices[:,0], vertices[:,1], np.zeros_like(vertices[:,0])], axis=1)
     elif view == 'top':
-        vertices_2d = vertices[:, [0, 2]]  # x, z
+        # (x,0,z)
+        vertices_out = np.stack([vertices[:,0], np.zeros_like(vertices[:,0]), vertices[:,2]], axis=1)
     elif view == 'side':
-        vertices_2d = vertices[:, [2, 1]]  # y, z
+        # (0,y,z)
+        vertices_out = np.stack([np.zeros_like(vertices[:,0]), vertices[:,1], vertices[:,2]], axis=1)
     else:
         raise ValueError("view must be 'front', 'top', or 'side'")
-    
-    vertices_2d = vertices_2d.astype(np.float32)
-    
-    return vertices_2d, faces.astype(np.int32)
+
+    return vertices_out.astype(np.float32), faces.astype(np.int32)
 
 # initialize the NNs for the dual potentials functions 
 class Phi(torch.nn.Module):
@@ -86,9 +89,9 @@ class Psi(torch.nn.Module):
     def forward(self, x):
         return self.net(x)
     
-# define input dimensions
-Ds = 2  # source dimension (2D points)
-Dt = 2  # target dimension (2D points)
+# define input dimensions (flattened 3D coordinates lying in a plane)
+Ds = 3  # source dimension (3D flattened)
+Dt = 3  # target dimension (3D flattened)
 
 # define the source and target potential functions
 phi = Phi(Ds).to(device)
@@ -97,12 +100,12 @@ opt = torch.optim.Adam(list(phi.parameters()) + list(psi.parameters()), lr=1e-3)
 
 epochs = 1000
 # the epsilon parameter controls the entropy regularization strength
-# smaller epsilon means more regularization, larger epsilon means less regularization
-epsilon = 0.005
+# larger epsilon means more entropy regularization; smaller epsilon means less regularization (transport concentrates toward the true OT plan)
+epsilon = 0.001
 
-# choose orientation for projection: 'front', 'top', 'side'
-source_vertices, source_faces = sample_cloud('data/bunny.obj', view='side')
-target_vertices, target_faces = sample_cloud('data/spot.obj', view='front')
+# choose orientations for 2D projection
+source_vertices, source_faces = sample_cloud('data/bunny.obj', view='front')
+target_vertices, target_faces = sample_cloud('data/spot.obj', view='side')
 
 # sample points from each point cloud
 X = source_vertices
@@ -131,6 +134,7 @@ for epoch in tqdm(range(epochs), desc="Training OT Model"):
     P = P[:, None] # shape (num_source, 1)
     S = S[None, :] # shape (1, num_target)
 
+    # penalization term 
     Z = torch.exp((P + S - C)/epsilon)
 
     L_entropy = epsilon * (Z.mean() - 1.0) - P.mean() - S.mean()
@@ -139,23 +143,11 @@ for epoch in tqdm(range(epochs), desc="Training OT Model"):
     L_entropy.backward()
     opt.step()
 
-# display the output
-P_opt = Z / Z.sum(dim=1, keepdim=True)
-
-# find the maximum pairs for phi and psi
-phi_max_pairs = P_opt.argmax(dim=0)
-psi_max_pairs = P_opt.argmax(dim=1)
-
 # visualize reflector as a 3D point cloud
 with torch.no_grad():
-    # if X is 2D, lift to 3D
-    if X.shape[1] == 2:
-        X3d = torch.cat([X, torch.zeros(X.shape[0], 1, device=X.device)], dim=1)
-    else:
-        X3d = X
-    # compute the reflector points according to the phi function: exp(phi(sigma)) * X3d
+    # compute the reflector points according to the phi function: exp(phi(sigma)) * X
     phi_vals = phi(X).squeeze(-1)
-    reflector_points = torch.exp(phi_vals)[:, None] * X3d
+    reflector_points = torch.exp(phi_vals)[:, None] * X
     reflector_points_np = reflector_points.cpu().numpy()
 
 ps.init()
@@ -169,10 +161,6 @@ ps.show()
 
 print("--- Sanity checks ---")
 print(f"C: min={C.min().item():.4f}, max={C.max().item():.4f}, mean={C.mean().item():.4f}")
-print(f"P_opt: min={P_opt.min().item():.4f}, max={P_opt.max().item():.4f}, sum={P_opt.sum().item():.4f}")
-print(f"C shape: {C.shape}, P_opt shape: {P_opt.shape}")
+print(f"C shape: {C.shape}")
 print(f"Any NaN in C? {torch.isnan(C).any().item()} | Any Inf in C? {torch.isinf(C).any().item()}")
-print(f"Any NaN in P_opt? {torch.isnan(P_opt).any().item()} | Any Inf in P_opt? {torch.isinf(P_opt).any().item()}")
 
-cost = (P_opt * C).sum()
-print(f"OT cost: {cost.item():.4f}")
