@@ -5,7 +5,6 @@ import cvxpy as cp
 from scipy.spatial.distance import cdist
 import trimesh
 import gpytoolbox as gpy
-
 from pathlib import Path
 
 def sample_cloud(mesh_file, N, view='front'):
