@@ -1,6 +1,6 @@
 # Algorithms for Convex Surface Reconstruction
 
-> **Mentor:** Prof. Nestor Guillén (Texas State University, US);
+> **Mentor:** [Prof. Nestor Guillén](https://www.ndguillen.com/) (Texas State University, US);
 > **Project  Assistant:** Ehsan Shams (Alexandria University,EG)
 
 Stephanie Atherton (Otis College of Art and Design, US); Minghao Ji (Columbia University, US); Amar KC (Howard University, US); Marina Oliveira Levay Reis (Minerva University, US);  Matthew Hellinger (Texas State University, US).     
