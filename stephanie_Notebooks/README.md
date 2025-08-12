@@ -5,7 +5,7 @@
 
 Stephanie Atherton (Otis College of Art and Design, US); Minghao Ji (Columbia University, US); Amar KC (Howard University, US); Marina Oliveira Levay Reis (Minerva University, US);  Matthew Hellinger (Texas State University, US).     
 
-**Project Abstract**: Reconstructing an unknown convex body **S** from the light-reflection pattern it casts onto a known screen can, under certain geometric assumptions, be reduced to a convex optimisation problem intimately linked to optimal transport and the Monge–Ampère equation.
+**Project Abstract**: Reconstructing an unknown convex body **S** from the light-reflection pattern it casts onto a known screen can, under certain [geometric assumptions](https://github.com/Ehsan494/Algorithms-for-convex-surface-reconstruction/blob/main/Selected%20Papers/2019_PrimerOnGJE.pdf), be reduced to a [convex optimization](https://en.wikipedia.org/wiki/Convex_optimization)  problem intimately linked to [optimal transport](https://github.com/Ehsan494/Algorithms-for-convex-surface-reconstruction/blob/main/Selected%20Papers/Solomon_OT_DiscreteDomains.pdf) and the [Monge–Ampère equation](https://en.wikipedia.org/wiki/Monge%E2%80%93Amp%C3%A8re_equation).
 This repository provides reproducible exploratory notebooks for the project *Algorithms for Convex Surface Reconstruction*.
 
 ## Preliminaries 
