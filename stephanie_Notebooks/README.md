@@ -6,11 +6,11 @@
 Stephanie Atherton (Otis College of Art and Design, US); Minghao Ji (Columbia University, US); Amar KC (Howard University, US); Marina Oliveira Levay Reis (Minerva University, US);  Matthew Hellinger (Texas State University, US).     
 
 **Project Abstract**: Reconstructing an unknown convex body **S** from the light-reflection pattern it casts onto a known screen can, under certain geometric assumptions, be reduced to a convex optimisation problem intimately linked to optimal transport and the Monge–Ampère equation.
-This repository provides reproducible implementations, tests, and exploratory notebooks for the SGI 2025 project *Algorithms for Convex Surface Reconstruction*.
+This repository provides reproducible exploratory notebooks for the project *Algorithms for Convex Surface Reconstruction*.
 
-## Setup 
+## Preliminaries 
 
-Most importantly, install [`cvxpy`](https://www.cvxpy.org/), a  modeling system for **convex optimization**. It lets you describe optimization problems almost exactly as you’d write them on paper, then automatically transforms and solves them using a solver.   
+We will make use of [`cvxpy`](https://www.cvxpy.org/), a  modeling system for **convex optimization**. It lets you describe optimization problems almost exactly as you’d write them on paper, then automatically transforms and solves them using a solver.   
 
 What can CVX do?
 

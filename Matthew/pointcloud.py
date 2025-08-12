@@ -3,6 +3,12 @@ import polyscope.imgui as psim
 import numpy as np
 import cvxpy as cp
 from scipy.spatial.distance import cdist
+import trimesh
+
+def sample_cloud(mesh_file, N):
+    mesh = trimesh.load(mesh_file, process=False)
+    points, _ = trimesh.sample.sample_surface(mesh, N)
+    return points
 
 def generate_point_cloud(shape, n, surface_only=False, **kwargs):
     """
@@ -225,6 +231,39 @@ def generate_point_cloud(shape, n, surface_only=False, **kwargs):
     else:
         raise ValueError(f"Unknown shape '{shape}'")
 
+def flatten_cloud(pts, axis):
+    """
+    Orthographically flatten a 3D point cloud onto a coordinate plane
+    by zeroing the chosen axis. Keeps shape (n,3).
+
+    axis: 'x' -> onto YZ plane (vertical)
+          'y' -> onto XZ plane (vertical)
+          'z' -> onto XY plane (horizontal)
+    """
+    idx = {'x':0, 'y':1, 'z':2}[axis.lower()]
+    out = np.array(pts, copy=True)
+    out[:, idx] = 0.0
+    return out
+
+def project_cloud(pts, view='front'):
+    """
+    Return a 2D array by selecting two axes for plotting.
+
+    view: 'front' -> (x,y)
+          'top'   -> (x,z)
+          'side'  -> (y,z)
+          or pass ('x','z'), (0,2), etc.
+    """
+    name2idx = {'x':0,'y':1,'z':2}
+    presets  = {'front':(0,1), 'top':(0,2), 'side':(1,2)}
+    if isinstance(view, str):
+        i, j = presets[view]
+    else:
+        a, b = view
+        i = name2idx[a] if isinstance(a, str) else int(a)
+        j = name2idx[b] if isinstance(b, str) else int(b)
+    return pts[:, (i, j)]
+
 def solve_ot(X, Y):
     """
     Solve OT between two point sets X,Y ∈ ℝ^{N×3}, each carrying uniform mass 1/N.
@@ -284,8 +323,24 @@ s = 0.0     # interpolation parameter
 
 # Generate point clouds with same number of points
 N = 500
-X = generate_point_cloud('cube',  N, surface_only=True, size=1.0).astype(np.float32)
-Y = generate_point_cloud('sphere',N, surface_only=True, radius=0.5).astype(np.float32)
+#X = generate_point_cloud('cube',  N, surface_only=True, size=1.0).astype(np.float32)
+#Y = generate_point_cloud('sphere',N, surface_only=True, radius=0.5).astype(np.float32)
+#X = sample_cloud('bunny.obj', N)   # source points
+#Y = sample_cloud('spot.obj',    N)   # target points
+#w = v = np.full(N, 1.0/N)           # equal weights
+
+# Generate points ON the sphere (3D)
+sphere_pts = generate_point_cloud('sphere', N, surface_only=True, radius=0.5).astype(np.float32)
+
+# Horizontal circle (XY plane): zero Z
+vertical_circle_3d = flatten_cloud(sphere_pts, 'z')      # lies in XY
+
+# Vertical circle (XZ plane): zero Y  [or use 'x' for YZ]
+horizontal_circle_3d = flatten_cloud(sphere_pts, 'y')     # lies in XZ
+
+# Use the 3D arrays directly; do NOT call project_cloud here
+X = horizontal_circle_3d
+Y = vertical_circle_3d
 
 # Solve OT problem
 P_opt, cost = solve_ot(X, Y)
