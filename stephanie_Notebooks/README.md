@@ -14,7 +14,7 @@ We will make use of [`cvxpy`](https://www.cvxpy.org/), a  modeling system for **
 
 What can CVX do?
 
-- Linear Programs (LPs)
+- [Linear Programs (LPs)](https://www.cvxpy.org/examples/basic/linear_program.html)
 - Quadratic Programs (QPs)
 - Second-Order Cone Programs (SOCPs)
 - Semidefinite Programs (SDPs)
