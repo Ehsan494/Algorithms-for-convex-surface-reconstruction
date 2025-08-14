@@ -32,7 +32,11 @@ Algorithms-for-conves-surface-reconstruction/
 │   └── README.md                  
 ├── 1D_example/
 │   ├── 1D_example.ipynb              
-│   └── README.md        
+│   └── README.md
+├── 2D_ShapeInterpolation/
+├── data/  
+├── svg_pointcloud.py              
+│   └── README.md     
 ├── 3D_ShapeInterpolation/
 │   ├── data/
 |   ├── pointcloud_marina.ipynb
