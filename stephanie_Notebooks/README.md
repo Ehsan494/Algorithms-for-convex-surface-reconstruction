@@ -31,11 +31,18 @@ Algorithms-for-conves-surface-reconstruction/
 |   ├── ot_cvx.py               
 │   └── README.md                  
 ├── 1D_example/
-│   ├──1D_example.ipynb              
+│   ├── 1D_example.ipynb              
 │   └── README.md        
-├── 3D_ShapeInterpolatiom/
-│  
-└── 
+├── 3D_ShapeInterpolation/
+│   ├── data/
+|   ├── pointcloud_marina.ipynb
+|   ├── pointcloud.ipynb
+|   └── README.md
+├── FarFieldReflectorProblem/
+    ├── CVX/
+    ├── Torch/
+    └── README.md
+ 
 ```
 
 
