@@ -28,14 +28,14 @@ We recommend setting up a python environment with the required packages:
 ```
 Algorithms-for-conves-surface-reconstruction/
 ├── OT_cvx/          
-|   ├── ot_cvx.py          #Optimal Transport (OT) using convex optimization example                
+|   ├── ot_cvx.py          #Optimal Transport (OT) using convex optimization             
 │   └── README.md                  
 ├── 1D_example/
-│   ├── 1D_example.ipynb                 
+│   ├── 1D_example.ipynb    #OT for 1D distrubtions                 
 │   └── README.md
 ├── 2D_ShapeInterpolation/
-├── data/                  #.svg files
-├── svg_pointcloud.py      #OT for 2D shape interpolation             
+├── data/                    #.svg files
+├── svg_pointcloud.py        #OT for 2D shape interpolation             
 │   └── README.md     
 ├── 3D_ShapeInterpolation/
 │   ├── data/                    #.obj files             
@@ -43,8 +43,8 @@ Algorithms-for-conves-surface-reconstruction/
 |   ├── pointcloud.ipynb
 |   └── README.md
 ├── FarFieldReflectorProblem/
-    ├── CVX/
-    ├── Torch/
+    ├── CVX/                    #CVX approach 
+    ├── Torch/                  #Deep Learning approach 
     └── README.md
  
 ```
