@@ -8,25 +8,38 @@ Stephanie Atherton (Otis College of Art and Design, US); Minghao Ji (Columbia Un
 **Project Abstract**: Reconstructing an unknown [convex body](https://en.wikipedia.org/wiki/Convex_body) **S** from the light-reflection pattern it casts onto a known screen can, under certain [geometric assumptions](https://github.com/Ehsan494/Algorithms-for-convex-surface-reconstruction/blob/main/Selected%20Papers/2019_PrimerOnGJE.pdf), be reduced to a [convex optimization](https://en.wikipedia.org/wiki/Convex_optimization)  problem intimately linked to [optimal transport](https://github.com/Ehsan494/Algorithms-for-convex-surface-reconstruction/blob/main/Selected%20Papers/Solomon_OT_DiscreteDomains.pdf) and the [Monge–Ampère equation](https://en.wikipedia.org/wiki/Monge%E2%80%93Amp%C3%A8re_equation).
 This repository provides reproducible exploratory notebooks for the project *Algorithms for Convex Surface Reconstruction*.
 
-## Preliminaries 
+## Required Packages
+We recommend setting up a python environment with the required packages:
+- `cvxpy`: convex optimization 
+- `trimesh`: loading, manipulating, visualizing triangular meshes
+- `triangle`: 2D triangular mesh generator 
+- `gpytoolbox`: geometry processing utility functions
+- `polyscope`: 3D visualization
+- `svgpathtools`: geometry analysis of SVG files
+- `pathlib`: handles file system paths 
+- `torch`: deep learning
+- `tqdm`: progress bars for loops
+- `scipy`: scientific computing 
+- `numpy`: numerical computing
+- `matplotlib`: plotting and visualization
+  
+## Project Outline 
 
-We will make use of [`cvxpy`](https://www.cvxpy.org/), a  modeling system for **convex optimization**. It lets you describe optimization problems almost exactly as you’d write them on paper, then automatically transforms and solves them using a solver.   
+```
+Algorithms-for-conves-surface-reconstruction/
+├── OT_cvx/
+|   ├── ot_cvx.py               
+│   └── README.md                  
+├── 1D_example/
+│   ├──1D_example.ipynb              
+│   └── README.md        
+├── 3D_ShapeInterpolatiom/
+│  
+└── 
+```
 
-What can CVX do?
 
-- [Linear Programs (LPs)](https://www.cvxpy.org/examples/basic/linear_program.html)
-- Quadratic Programs (QPs)
-- Second-Order Cone Programs (SOCPs)
-- Semidefinite Programs (SDPs)
-- Norm minimization (ℓ₁, ℓ₂, ℓ∞) and other convex constructs
 
-All of these follow the Disciplined Convex Programming (DCP) rules, ensuring automatic convexity verification.
-
-What cannot CVX do?
-
-- Non-convex problems (e.g., minimizing x³)
-- Integer or mixed-integer programs
-- Global non-convex solvers (branch-and-bound, genetic algorithms)
 
 ---
 
