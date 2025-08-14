@@ -31,7 +31,7 @@ Algorithms-for-conves-surface-reconstruction/
 |   ├── ot_cvx.py          #Optimal Transport (OT) using convex optimization             
 │   └── README.md                  
 ├── 1D_example/
-│   ├── 1D_example.ipynb    #OT for 1D distrubtions                 
+│   ├── 1D_example.ipynb     #OT for 1D distrubtions                 
 │   └── README.md
 ├── 2D_ShapeInterpolation/
 ├── data/                    #.svg files
