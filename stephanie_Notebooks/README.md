@@ -27,18 +27,18 @@ We recommend setting up a python environment with the required packages:
 
 ```
 Algorithms-for-conves-surface-reconstruction/
-├── OT_cvx/
-|   ├── ot_cvx.py               
+├── OT_cvx/          
+|   ├── ot_cvx.py          #Optimal Transport (OT) using convex optimization example                
 │   └── README.md                  
 ├── 1D_example/
-│   ├── 1D_example.ipynb              
+│   ├── 1D_example.ipynb                 
 │   └── README.md
 ├── 2D_ShapeInterpolation/
-├── data/  
-├── svg_pointcloud.py              
+├── data/                  #.svg files
+├── svg_pointcloud.py      #OT for 2D shape interpolation             
 │   └── README.md     
 ├── 3D_ShapeInterpolation/
-│   ├── data/
+│   ├── data/                    #.obj files             
 |   ├── pointcloud_marina.ipynb
 |   ├── pointcloud.ipynb
 |   └── README.md
@@ -48,9 +48,9 @@ Algorithms-for-conves-surface-reconstruction/
     └── README.md
  
 ```
+## Acknowledgements
 
-
-
+We thank the organizers and sponsors of [MIT's Summer Geometry Initiative](https://sgi.mit.edu/) 2025 for their support of this project.   
 
 ---
 
