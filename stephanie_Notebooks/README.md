@@ -39,8 +39,8 @@ Algorithms-for-conves-surface-reconstruction/
 │   └── README.md     
 ├── 3D_ShapeInterpolation/
 │   ├── data/                    #.obj files             
-|   ├── pointcloud_marina.ipynb
-|   ├── pointcloud.ipynb
+|   ├── pointcloud_marina.py
+|   ├── pointcloud.py
 |   └── README.md
 ├── FarFieldReflectorProblem/
     ├── CVX/                    #CVX approach 
