@@ -14,6 +14,10 @@ from tqdm import tqdm
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
+EXTEND_RAYS = True       # If True, extend transport rays beyond current target samples
+RAY_EXTENSION_LENGTH = 10.0  # Additional length to extend beyond reflector point along transport direction
+
+
 import random
 torch.manual_seed(0)
 np.random.seed(0)
@@ -145,9 +149,8 @@ with torch.no_grad():
     Y_exp = Y[None, :, :]
     # Pairwise squared distances
     sq_dist = torch.sum((X_exp - Y_exp) ** 2, dim=-1).clamp(min=1e-12)
-    # Compute cost explicitly in steps to avoid any precedence ambiguity:
-    # raw_cost = -log(0.5 * ||x-y||^2); enforce non-negativity by clamping.
-    log_arg = 0.5 * sq_dist  # >0 due to previous clamp
+    # For unit vectors: 0.5||x-y||^2 = 1 - <x,y>
+    log_arg = 0.5 * sq_dist  # = 1 - dot, already >0
     C = -torch.log(log_arg)
 
 for epoch in tqdm(range(epochs), desc="Training OT Model"):
@@ -187,8 +190,9 @@ phi_vals_final, grad_phi_final, T_optical = compute_grad_phi_and_map(X, phi)
 with torch.no_grad():
     # compute the reflector points according to the phi function: exp(phi(sigma)) * X
     phi_vals = phi(X).squeeze(-1)
-    #reflector_points = torch.exp(phi_vals)[:, None] * X
-    reflector_points = torch.exp(phi_vals)[:, None] * X
+    # Reflector radius function r(σ) = exp(phi(σ)) (no additional constant offset)
+    r = torch.exp(phi_vals)
+    reflector_points = r[:, None] * X
     reflector_points_np = reflector_points.cpu().numpy()
 
     # sample additional points directly from X for evaluation
@@ -198,7 +202,8 @@ with torch.no_grad():
         extra_idx = torch.randint(0, X.shape[0], (N_EXTRA,), device=device)
         X_extra = X[extra_idx]
         phi_extra = phi(X_extra).squeeze(-1)
-        reflector_extra = torch.exp(phi_extra)[:, None] * X_extra
+        r_extra = torch.exp(phi_extra)
+        reflector_extra = r_extra[:, None] * X_extra
         reflector_points_np = np.concatenate([
             reflector_points_np,
             reflector_extra.cpu().numpy()
@@ -240,7 +245,31 @@ vertices_rt = np.concatenate([reflector_points_np, target_matched_np], axis=0)
 edges_rt = np.column_stack([np.arange(base_N), np.arange(base_N) + R])
 ps.register_curve_network("edges reflector->target", vertices_rt, edges_rt)
 
+if EXTEND_RAYS:
+    with torch.no_grad():
+        # Use first base_N reflector points (aligned with original sources)
+        reflector_base = torch.as_tensor(reflector_points_base_np, dtype=torch.float32, device=device)
+        # Use transport directions from T_optical (normalize to be safe)
+        dirs = T_optical[:base_N]
+        dirs = dirs / dirs.norm(dim=1, keepdim=True).clamp_min(1e-12)
+
+        t = torch.full((base_N,), RAY_EXTENSION_LENGTH, device=device)
+
+        end_points = reflector_base + t[:, None] * dirs
+        vertices_ext = torch.cat([reflector_base, end_points], dim=0).cpu().numpy()
+        edges_ext = np.column_stack([np.arange(base_N), np.arange(base_N) + base_N])
+        ps.register_curve_network("extended rays", vertices_ext, edges_ext)
+        
+    # Also register endpoints as a separate point cloud for sampling / export
+    ray_endpoints_pc = ps.register_point_cloud("ray endpoints", end_points.cpu().numpy())
+    ray_endpoints_pc.set_radius(0.006)
+    ray_endpoints_pc.set_color((0.95, 0.85, 0.10))  # yellow-ish
+    # Store extension lengths as a scalar quantity
+    ray_endpoints_pc.add_scalar_quantity("extension_length", t.cpu().numpy(), enabled=True)
+
 ps.show()
+
+print("Reflector radius uses exp(phi); no constant path length offset. Ray extension active:" , EXTEND_RAYS)
 
 print("--- Sanity checks ---")
 print(f"C: min={C.min().item():.4f}, max={C.max().item():.4f}, mean={C.mean().item():.4f}")
